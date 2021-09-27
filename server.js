@@ -9,14 +9,30 @@ var WebSocketServer = require("ws").Server;
 var webSocketServer;
 const Readline = require("@serialport/parser-readline");
 const SerialPort = require("serialport");
-const port = new SerialPort("COM5", {
-  baudRate: 115200,
-  dataBits: 8,
-  parity: "none",
-  stopBits: 1,
-  flowControl: false,
+var newport;
+SerialPort.list().then(function (ports) {
+  ports.forEach(function (ports) {
+    if (
+      ports.pnpId.includes("VID_10C4&PID_EA60") ||
+      ports.pnpId.includes("VID_1A86&PID_7523")
+    ) {
+      comport = ports.path;
+      console.log("PlayComputer Connected at :", comport);
+      console.log("Visit 'localhost:3000' on your browser");
+      newport = new SerialPort(comport, {
+        baudRate: 115200,
+        dataBits: 8,
+        parity: "none",
+        stopBits: 1,
+        flowControl: false,
+      });
+      parser = newport.pipe(new Readline({ delimiter: "\r\n" }));
+    }
+  });
+  if (!newport) {
+    console.log("PlayComputer not connected \n Connect and reopen again");
+  }
 });
-parser = port.pipe(new Readline({ delimiter: "\r\n" }));
 server = http.listen(PORT, () => {
   console.log(`Server is up and running at ${PORT}`);
 });
@@ -32,22 +48,14 @@ app.use("/", router);
 webSocketServer = new WebSocketServer({ server: server });
 
 webSocketServer.on("connection", (ws) => {
-  ws.on("message", (message) => {
-    console.log(`Received message => ${message}`);
-  });
+  console.log("New Client Connected");
 
   parser.on("data", async function (data) {
     data = await data.toString("utf-8").trim();
     //console.log("movement from esp32:", data);
-    if (data == "48") {
-      // setTimeout(function () {
-      //   ws.send("btndown");
-      // }, 1);
+    if (data == "49") {
       ws.send("btndown");
       console.log("flap");
     }
-    // else if (data == "50" || "49") {
-    //   ws.send("restart");
-    // }
   });
 });

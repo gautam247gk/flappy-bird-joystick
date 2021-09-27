@@ -128,7 +128,7 @@ var initCanvas = function () {
       //   this.restartGame(this);
     }
   };
-  FastClick.attach(canvas);
+  //FastClick.attach(canvas);
   loadImages();
 };
 
@@ -442,7 +442,7 @@ window.onload = function () {
   normal.onclick = normalMode;
   hard = document.getElementById("hard");
   hard.onclick = hardMode;
-  document.getElementById("flashlight").onclick = flashlight;
+  //document.getElementById("flashlight").onclick = flashlight;
   //document.getElementById("hidden").onclick = hidden;
   window.onresize = function () {
     canvas.width = width = window.innerWidth;
